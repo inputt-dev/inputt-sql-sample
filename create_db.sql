@@ -1,0 +1,9 @@
+DROP TABLE IF EXISTS TEST;
+
+
+CREATE TABLE TEST(ID INTEGER,
+				  NAME TEXT,
+                  DATA BLOB,
+                  VALUE REAL,
+				  PRIMARY KEY(ID, NAME, DATA, VALUE)
+				 ); 
