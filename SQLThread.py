@@ -176,11 +176,16 @@ def speed_test():
 		frames += 1
 	t = stopWatchStop()
 	text = "{} draws in {} seconds. FPS = {}".format(draws,t,int(draws/t))
+
 	print(text)
 	return [text]
 
 def set_default_colors():
-	return ["Set default text color for text(forground)", "Set default background color, when not set by special text"]
+	ret = [	"Set default text color for text(forground)", 
+			"Set default background color, when not set by special text",
+			f'Foreground set to {inputt.gui.fg_color}',
+			f'Background set to {inputt.gui.bg_color}']
+	return ret
 
 def set_foreground_color():
 	color = inputt.getColor(inputt.gui.fg_color)
