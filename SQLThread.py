@@ -7,6 +7,7 @@ import sqlite3
 import time
 import datetime
 import cv2
+from guiThread import GUIThread
 
 inputt = Inputt() #Start the interface
 db = DB("db.db",'4') #Start the database manager
@@ -149,15 +150,20 @@ def stopWatchStop():
 def speed_test():
 	#Generate a random screen and redraw it as soon as possible
 	
-	cols = 80
+	cols = 120
 	rows = int(cols*9/16)
-	inputt.gui.setFontSize(19)
+	inputt.gui.setFontSize(8)
 	inputt.gui.resize(cols,rows)
+	inputt.gui.stop()
+	width = cols *8
+	height = rows * 8
 	stopWatchStart()
 	cursor_row = 0
 	cursor_col = 0
 	frames = 0
 	draws = 100
+	#vid_cod = cv2.VideoWriter_fourcc(*'mp4v')
+	#output = cv2.VideoWriter("speedtest.mp4", vid_cod, 20.0, (width,height))
 	while frames < draws:
 		inputt.gui.updatingBuffer(True)
 		while cursor_row < rows:
@@ -171,13 +177,18 @@ def speed_test():
 			cursor_col = 0
 		cursor_row = 0
 		inputt.gui.updatingBuffer(False)
-		while inputt.gui.bufferUpdated == True:
-			pass
+		frame = inputt.gui.drawScreen()
+		cv2.imshow("Speed Test", frame)
+		cv2.waitKey(1)
+		#output.write(frame)
 		frames += 1
 	t = stopWatchStop()
+	#output.release()
+	cv2.destroyWindow("Speed Test")
 	text = "{} draws in {} seconds. FPS = {}".format(draws,t,int(draws/t))
-
 	print(text)
+	inputt.gui = GUIThread("GUI", [])
+	inputt.gui.start()
 	return [text]
 
 def set_default_colors():
@@ -202,18 +213,18 @@ def set_background_color():
 """
 Define the menu hierarchy and supply the functions that go with each
 """
-inputt.addMenuItem([], name = "DB workerthread", func = root)
-inputt.addMenuItem(['1'], name = "Select", func = Select)
-inputt.addMenuItem(['2'], name = "Insert", func = Insert)
-inputt.addMenuItem(['3'], name = "Update", func = Update)
-inputt.addMenuItem(['4'], name = "Delete", func = delete)
-inputt.addMenuItem(['5'], name = "database utilities", func = database_utilities)
-inputt.addMenuItem(['5', '1'], name = "Reset database", func = Reset_database)
-inputt.addMenuItem(['t'], name = "Test and Config", func = test_and_config)
-inputt.addMenuItem(['t', '1'], name = "Speed Test", func = speed_test)
-inputt.addMenuItem(['t', '2'], name = "Set default colors", func = set_default_colors)
-inputt.addMenuItem(['t', '2', '1'], name = "Set default background color", func = set_background_color)
-inputt.addMenuItem(['t', '2', '2'], name = "Set default foreground color", func = set_foreground_color)
+inputt.add_menu_item([], name = "DB workerthread", func = root)
+inputt.add_menu_item(['1'], name = "Select", func = Select)
+inputt.add_menu_item(['2'], name = "Insert", func = Insert)
+inputt.add_menu_item(['3'], name = "Update", func = Update)
+inputt.add_menu_item(['4'], name = "Delete", func = delete)
+inputt.add_menu_item(['5'], name = "database utilities", func = database_utilities)
+inputt.add_menu_item(['5', '1'], name = "Reset database", func = Reset_database)
+inputt.add_menu_item(['t'], name = "Test and Config", func = test_and_config)
+inputt.add_menu_item(['t', '1'], name = "Speed Test", func = speed_test)
+inputt.add_menu_item(['t', '2'], name = "Set default colors", func = set_default_colors)
+inputt.add_menu_item(['t', '2', '1'], name = "Set default background color", func = set_background_color)
+inputt.add_menu_item(['t', '2', '2'], name = "Set default foreground color", func = set_foreground_color)
 
 
 inputt.startGui()
@@ -221,7 +232,7 @@ inputt.startGui()
 #The inputt main loop update menu to show current state, process the current menu item, and get the next line of input
 while True:
 	db.flush_command_buffer()
-	output = inputt.outputProcessed()
+	output = inputt.process_menulevel()
 	if inputt.endProgram:
 		break
 	userInput = inputt.nextLine()
