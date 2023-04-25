@@ -232,7 +232,7 @@ inputt.startGui()
 #The inputt main loop update menu to show current state, process the current menu item, and get the next line of input
 while True:
 	db.flush_command_buffer()
-	output = inputt.process_menulevel()
+	inputt.outputt()
 	if inputt.endProgram:
 		break
 	userInput = inputt.nextLine()
@@ -241,4 +241,3 @@ while True:
 runningThreads = threads.iterable()
 for rt in runningThreads:
 	rt.stop()
-				
